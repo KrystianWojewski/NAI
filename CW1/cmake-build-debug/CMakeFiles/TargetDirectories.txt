@@ -1,3 +1,0 @@
-C:/Users/PeadC/OneDrive/Pulpit/AI/NAI/CW1/cmake-build-debug/CMakeFiles/CW1.dir
-C:/Users/PeadC/OneDrive/Pulpit/AI/NAI/CW1/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/PeadC/OneDrive/Pulpit/AI/NAI/CW1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
