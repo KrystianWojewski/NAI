@@ -21,7 +21,7 @@ double convert_to_degrees(double x) {
 int main(int argc, char **argv) {
     using namespace std;
     vector<string> argumenty(argv, argv + argc);
-    map<string, int> mapa;
+    mojamapa_t mapa;
     map<string, moja_funkcja> formatery;
 
     for (int i = 2; i < argumenty.size(); i++) {
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
     formatery["add"] = [](mojamapa_t map) { return map.at("arg1") + map.at("arg2"); };
     formatery["mod"] = [](mojamapa_t map) { return map.at("arg1") %  map.at("arg2"); };
     formatery["sin"] = [](mojamapa_t map) {
-        double x = convert_to_degrees(map.at("arg1")*1.0);
+        double x = convert_to_degrees(map.at("arg1"));
         return sin(x);
     };
 
