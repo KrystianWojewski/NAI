@@ -28,9 +28,9 @@ int main(int argc, char **argv) {
         mapa.insert({{"arg" + to_string(i-1), stoi(argumenty.at(i))}});
     }
 
-    formatery["add"] = [](map<string, int> map) { return map.at("arg1") + map.at("arg2"); };
-    formatery["mod"] = [](map<string, int> map) { return map.at("arg1") %  map.at("arg2"); };
-    formatery["sin"] = [](map<string, int> map) {
+    formatery["add"] = [](mojamapa_t map) { return map.at("arg1") + map.at("arg2"); };
+    formatery["mod"] = [](mojamapa_t map) { return map.at("arg1") %  map.at("arg2"); };
+    formatery["sin"] = [](mojamapa_t map) {
         double x = convert_to_degrees(map.at("arg1")*1.0);
         return sin(x);
     };
