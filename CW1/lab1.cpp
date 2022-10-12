@@ -6,7 +6,7 @@
 #include <vector>
 #include <cmath>
 
-using mojamapa_t = std::map<std::string, int>;
+using mojamapa_t = std::map<int, int>;
 using moja_funkcja = std::function<double (mojamapa_t)>;
 
 void wypisz(mojamapa_t mapa, moja_funkcja fun) {
@@ -25,13 +25,14 @@ int main(int argc, char **argv) {
     map<string, moja_funkcja> formatery;
 
     for (int i = 2; i < argumenty.size(); i++) {
-        mapa.insert({{"arg" + to_string(i-1), stoi(argumenty.at(i))}});
+//        mapa.insert({{"arg" + to_string(i-1), stoi(argumenty.at(i))}});
+        mapa[i-1] = stoi(argumenty.at(i));
     }
 
-    formatery["add"] = [](mojamapa_t map) { return map.at("arg1") + map.at("arg2"); };
-    formatery["mod"] = [](mojamapa_t map) { return map.at("arg1") %  map.at("arg2"); };
+    formatery["add"] = [](mojamapa_t map) { return map.at(1) + map.at(2); };
+    formatery["mod"] = [](mojamapa_t map) { return map.at(1) %  map.at(2); };
     formatery["sin"] = [](mojamapa_t map) {
-        double x = convert_to_degrees(map.at("arg1"));
+        double x = convert_to_degrees(map.at(1));
         return sin(x);
     };
 
