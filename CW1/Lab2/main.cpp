@@ -2,56 +2,57 @@
 #include <vector>
 #include <functional>
 #include <random>
-/**
- * domain - generate domain points. Throws exception when all the points were returned
- */
-auto brute_force = [](auto f, auto domain) {
-    auto current_p = domain();
-    auto best_point = current_p;
-    try {
-        while (true) {
-            if (f(current_p) < f(best_point)) {
-                best_point = current_p;
-            }
-            current_p = domain();
-        }
-    } catch (std::exception &e) {
-    }
-    return best_point;
-};
+#include <optional>
+
+std::mt19937 mt_generator((std::random_device())());
+
 using domain_t = std::vector<double>;
-std::random_device rd;
-std::mt19937 mt_generator(rd());
-domain_t hill_climbing(const std::function<double(domain_t)> &f, domain_t minimal_d, domain_t maximal_d, int max_iterations) {
-    domain_t current_p(minimal_d.size());
-    for (int i = 0; i < minimal_d.size(); i++) {
-        std::uniform_real_distribution<double> dist(minimal_d[i], maximal_d[i]);
-        current_p[i] = dist(mt_generator);
-    }
+
+domain_t hill_climbing(const std::function<double(domain_t)> &f, domain_t start_point, std::function<std::vector<domain_t>(domain_t)> get_close_points, int max_iterations) {
+    domain_t best_p = start_point;
     for (int iteration = 0; iteration < max_iterations; iteration++) {
-        domain_t new_p(minimal_d.size());
-        for (int i = 0; i < minimal_d.size(); i++) {
-            std::uniform_real_distribution<double> dist(-1.0/128.0, 1.0/128.0);
-            new_p[i] = current_p[i] + dist(mt_generator);
-        }
-        if (f(current_p) > f(new_p)) {
-            current_p = new_p;
+        auto close_points = get_close_points(best_p);
+        auto best_neighbour = *std::min_element(close_points.begin(), close_points.end(), [f](auto a, auto b){return f(a) > f(b);});
+        if (f(best_neighbour) < f(best_p)) best_p = best_neighbour;
+    }
+    return best_p;
+}
+
+domain_t brute_force_method(const std::function<double(domain_t)> &f, const std::function<std::optional<domain_t>()> &domain_generator) {
+
+    auto best_p = domain_generator();
+    for (auto current_p = best_p; current_p.has_value(); current_p = domain_generator()) {
+        if (f(current_p.value()) < f(best_p.value())) {
+            best_p = current_p;
         }
     }
-    return current_p;
+    return best_p.value_or(domain_t());
 }
 int main() {
-    auto sphere_f = [](double x) {return x*x;};
-    double current_sphere_x = -10;
-    auto sphere_generator = [&]() {
-        current_sphere_x+= 1.0/128.0;
-        if (current_sphere_x >= 10) throw std::invalid_argument("finished");
-        return current_sphere_x;
+    const double precision = 1.0/128;
+    auto sphere_f_v = [](domain_t x) {return x[0]*x[0] + x[1]*x[1];};
+    auto sphere_f_generator = [precision]() -> std::optional<domain_t>{
+        static domain_t p = {-10, -10};
+        int i = 0;
+        for (i; i < p.size(); i++) {
+            p[i] = p[i] + precision;
+            if (p[i] < 10) return std::optional( p );
+            p[i] = -10;
+        }
+        return {};
     };
-    auto best_point = brute_force(sphere_f, sphere_generator);
-    std::cout << "best x = " << best_point << std::endl;
-    auto sphere_f_v = [](domain_t x) {return x[0]*x[0];};
-    auto best2 = hill_climbing(sphere_f_v, {-10},{10},10000);
-    std::cout << "best x = " << best2[0] << std::endl;
+    auto get_random_point = []() -> domain_t {
+        std::uniform_real_distribution<double>distr(-10,10);
+        return {distr(mt_generator), distr(mt_generator)};
+    };
+    auto get_close_points_random = [](domain_t p0) -> std::vector<domain_t> {
+        std::uniform_real_distribution<double>distr(-10,10);
+        return {{distr(mt_generator), distr(mt_generator)}};
+    };
+
+    auto best1 = hill_climbing(sphere_f_v, get_random_point(), get_close_points_random,1000000);
+    std::cout << "hill_climbing x = " << best1[0] << " hill_climbing y = " << best1[1] << std::endl;
+    auto best2 = brute_force_method(sphere_f_v, sphere_f_generator);
+    std::cout << "brute_force x = " << best2[0] << " brute_force y = " << best2[1] << std::endl;
     return 0;
 }
