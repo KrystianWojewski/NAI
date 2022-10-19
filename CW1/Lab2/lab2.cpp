@@ -8,10 +8,10 @@ std::mt19937 mt_generator((std::random_device())());
 
 using domain_t = std::vector<double>;
 
-domain_t hill_climbing(const std::function<double(domain_t)> &f, domain_t start_point, std::function<std::vector<domain_t>(domain_t)> get_close_points, int max_iterations) {
+domain_t hill_climbing(const std::function<double(domain_t)> &f, domain_t start_point, std::function<std::vector<domain_t>()> get_close_points, int max_iterations) {
     domain_t best_p = start_point;
     for (int iteration = 0; iteration < max_iterations; iteration++) {
-        auto close_points = get_close_points(best_p);
+        auto close_points = get_close_points();
         auto best_neighbour = *std::min_element(close_points.begin(), close_points.end(), [f](auto a, auto b){return f(a) > f(b);});
         if (f(best_neighbour) < f(best_p)) best_p = best_neighbour;
     }
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
         std::uniform_real_distribution<double>distr(std::stod(argv[2]), std::stod(argv[3]));
         return {distr(mt_generator), distr(mt_generator)};
     };
-    auto get_close_points_random = [=](domain_t p0) -> std::vector<domain_t> {
+    auto get_close_points_random = [=]() -> std::vector<domain_t> {
         std::uniform_real_distribution<double>distr(std::stod(argv[2]),std::stod(argv[3]));
         return {{distr(mt_generator), distr(mt_generator)}};
     };
