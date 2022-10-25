@@ -3,4 +3,4 @@ project(CW1)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(CW1 Lab2/lab2.cpp)
+add_executable(CW1 Lab3/Lab3.cpp)
