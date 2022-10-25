@@ -67,7 +67,6 @@ domain_t simulated_annealing(const std::function<double(domain_t)> &f, domain_t 
         }
         {
             auto close_points = get_close_points(*annealing_i);
-            auto dupa = get_close_points(s);
             auto t = *std::min_element(close_points.begin(), close_points.end(),
                                        [f](auto a, auto b) { return f(a) < f(b); });
             std::uniform_real_distribution<double> distr(0, 1);
@@ -131,7 +130,7 @@ int main() {
         return ret;
     };
 
-    auto best0 = tabu_method(holder_table_f_v, get_random_point(), get_close_points, 10000);
+    auto best0 = tabu_method(booth_f_v, get_random_point(), get_close_points, 10000);
     std::cout << "# tabu x = " << best0[0] << " " << best0[1] << std::endl;
     auto best1 = hill_climbing(booth_f_v, get_random_point(), get_close_points, 100000);
     std::cout << "# hill x = " << best1[0] << " " << best1[1] << std::endl;
