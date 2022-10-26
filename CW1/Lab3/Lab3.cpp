@@ -60,32 +60,25 @@ domain_t simulated_annealing(const std::function<double(domain_t)> &f, domain_t 
     domain_t s = start_point;
     list<domain_t> annealing_list = {s};
     for (int k = 1; k < max_iterations; k++) {
-        auto T = k;
-        auto annealing_i = annealing_list.begin();
-        if (annealing_list.size() > 1) {
-            advance(annealing_i, annealing_list.size() - 2);
-        }
-        {
-            auto close_points = get_close_points(*annealing_i);
-            auto dupa = get_close_points(s);
-            auto t = *std::min_element(close_points.begin(), close_points.end(),
-                                       [f](auto a, auto b) { return f(a) < f(b); });
-            std::uniform_real_distribution<double> distr(0, 1);
-            double uk = distr(mt_generator);
-            auto func = exp(-1 * (abs(f(t) - f(*annealing_i)) / T));
+        auto T = 1000.0 / k;
+        auto point = get_close_points(s);
+        auto t = point[0];
 
-            if (f(t) >= f(*annealing_i)) {
-                s = t;
-                annealing_list.push_back(s);
-            } else if (uk < func) {
-                s = t;
-                annealing_list.push_back(s);
-            } else {
-                s = *annealing_i;
-            }
+        std::uniform_real_distribution<double> distr(0, 1);
+        double uk = distr(mt_generator);
+        auto func = exp(-1.0 * (abs(f(t) - f(s)) / T));
+
+        if (f(t) <= f(s)) {
+            s = t;
+            annealing_list.push_back(s);
+        } else if (uk < func) {
+            s = t;
+            annealing_list.push_back(s);
         }
     }
-    return s;
+    auto min_elem = *std::min_element(annealing_list.begin(), annealing_list.end(),
+                                      [f](auto a, auto b) { return f(a) < f(b); });
+    return min_elem;
 }
 
 int main() {
@@ -114,28 +107,31 @@ int main() {
     };
 
     auto get_close_points_random = [](domain_t p0) -> std::vector<domain_t> {
-        std::uniform_real_distribution<double> distr(-10, 10);
-        return {{distr(mt_generator), distr(mt_generator)}};
+        std::normal_distribution<double> distr_x(p0[0], 1);
+        auto point_x = distr_x(mt_generator);
+        std::normal_distribution<double> distr_y(p0[1], 1);
+        auto point_y = distr_y(mt_generator);
+        return {{point_x, point_y}};
     };
 
     auto get_close_points = [](domain_t p0) -> std::vector<domain_t> {
         std::vector<domain_t> ret;
         for (int i = 0; i < p0.size(); i++) {
             domain_t v = p0;
-            v[i] += 1.0 / 64.0;
+            v[i] += 1.0 / 128.0;
             ret.push_back(v);
             v = p0;
-            v[i] -= 1.0 / 64.0;
+            v[i] -= 1.0 / 128.0;
             ret.push_back(v);
         }
         return ret;
     };
 
-    auto best0 = tabu_method(holder_table_f_v, get_random_point(), get_close_points, 10000);
+    auto best0 = tabu_method(three_hump_camel_f_v, get_random_point(), get_close_points, 10000);
     std::cout << "# tabu x = " << best0[0] << " " << best0[1] << std::endl;
-    auto best1 = hill_climbing(booth_f_v, get_random_point(), get_close_points, 100000);
+    auto best1 = hill_climbing(three_hump_camel_f_v, get_random_point(), get_close_points, 10000);
     std::cout << "# hill x = " << best1[0] << " " << best1[1] << std::endl;
-    auto best2 = simulated_annealing(booth_f_v, get_random_point(), get_close_points, 100000);
+    auto best2 = simulated_annealing(three_hump_camel_f_v, get_random_point(), get_close_points_random, 10000);
     std::cout << "# annealing x = " << best2[0] << " " << best2[1] << std::endl;
     return 0;
 }
