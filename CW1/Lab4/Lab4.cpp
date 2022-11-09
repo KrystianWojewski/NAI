@@ -25,22 +25,37 @@ population_t generate_population(int size) {
     return pop;
 }
 
+int convert(long long n) {
+    int dec = 0, i = 0, rem;
+
+    while (n!=0) {
+        rem = n % 10;
+        n /= 10;
+        dec += rem * pow(2, i);
+        ++i;
+    }
+
+    return dec;
+}
+
 std::pair<double, double> decode(chromosome_t chromosome) {
-    double x = 0.0;
-    double y = 0.0;
+    std::string x_binary = "";
+    std::string y_binary = "";
+    double x_decimal = 0.0;
+    double y_decimal = 0.0;
 
     for (int i = 0; i < chromosome.size() / 2; i++) {
-        x = x * 2 + chromosome[i];
+        x_binary += std::to_string(chromosome[i]);
     }
 
     for (int i = chromosome.size() / 2; i < chromosome.size(); i++) {
-        y = y * 2 + chromosome[i];
+        y_binary += std::to_string(chromosome[i]);
     }
 
-    x = x / pow(2.0, (chromosome.size() / 2 - 4)) - 8;
-    y = y / pow(2.0, (chromosome.size() / 2 - 4)) - 8;
+    x_decimal = (convert(stol(x_binary)) / pow(2.0, (chromosome.size() / 2 - 4)) - 8);
+    y_decimal = (convert(stol(y_binary)) / pow(2.0, (chromosome.size() / 2 - 4)) - 8);
 
-    return {x, y};
+    return {x_decimal, y_decimal};
 }
 
 auto three_hump_camel_f_v = [](std::pair<double, double> pair) {
