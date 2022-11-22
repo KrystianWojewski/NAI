@@ -68,7 +68,7 @@ int selection_roulette(std::vector<double> fitnesses) {
     }
     std::uniform_int_distribution<int> uniform(0, fit_sum);
     int r = uniform(mt_generator);
-    while (r >= 0){
+    while (r > 0){
         r -= int (fitnesses[index]);
         index++;
     }
