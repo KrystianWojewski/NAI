@@ -61,15 +61,15 @@ int selection_empty(std::vector<double> fitnesses) {
 }
 
 int selection_roulette(std::vector<double> fitnesses) {
-    int fit_sum = 0;
+    double fit_sum = 0;
     int index = 0;
-    for (auto a : fitnesses) {
-        fit_sum += int (a);
+    for (auto a: fitnesses) {
+        fit_sum += a;
     }
-    std::uniform_int_distribution<int> uniform(0, fit_sum);
-    int r = uniform(mt_generator);
-    while (r > 0){
-        r -= int (fitnesses[index]);
+    std::uniform_real_distribution<double> uniform(0, fit_sum);
+    double r = uniform(mt_generator);
+    while (r > 0) {
+        r -= fitnesses[index];
         index++;
     }
     if (index > 0) index--;
@@ -118,17 +118,15 @@ chromosome_t mutation_empty(const chromosome_t parent, double p_mutation) {
 chromosome_t mutation_uniform(const chromosome_t parent, double p_mutation) {
     using namespace std;
     uniform_real_distribution<double> uni(0.0, 1.0);
-    if (uni(mt_generator) < p_mutation) {
-        chromosome_t child = parent;
-        for (int i = 0; i < parent.size(); i++) {
-            uniform_int_distribution<int> locus(0, 100);
-            if (locus(mt_generator) > 50)
-                child[i] = 1 - child[i];
+    chromosome_t child = parent;
+    for (int i = 0; i < parent.size(); i++) {
+        if (uni(mt_generator) < p_mutation) {
+            child[i] = 1 - child[i];
         }
-        return child;
     }
-    return parent;
+    return child;
 }
+
 
 chromosome_t mutation_one_point(const chromosome_t parent, double p_mutation) {
     using namespace std;
