@@ -44,11 +44,8 @@ int main(int argc, char **argv) {
                 return contourArea(a) > contourArea(b);
             });
 
-            double epsilon = 5;
-
             auto big_con = moments(contours[0], false);
             auto big_con_sec = moments(contours[1], false);
-
 
             int x_center_big_con = (int) (big_con.m10 / big_con.m00);
             int y_center_big_con = (int) (big_con.m01 / big_con.m00);
